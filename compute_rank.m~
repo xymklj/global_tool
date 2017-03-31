@@ -1,0 +1,104 @@
+clear;
+compute_rank(gallery_dir,probe_dir,gallery_txt,probe_txt,prototxt,caffemodel,data_key,feature_key,is_gray...
+    data_size,norm_type,averageImg,caffe_path)
+%compute the rank 1-n
+%
+%inputs:
+%  gallery(probe)_dir --the direcory contains imgs
+%  gallery(probe)_txt --the txt contains lines such as *.png *.jpg.
+%           Notices:gallery(probe)_dir+(lines in gallery(probe)_txt) should be the
+%           full path of all images
+%  prototxt and caffemodel  -- for special network
+%  data_key                 -- the input data layer name
+%  feature_key                 -- the feature layer name
+%  is_gray                  -- true if the channel of input layer is
+%           1;false if the channel of input layer is 3
+%  data_size                -- the data size of input layer
+%  norm_type                -- type=0 indicates that the data is just divided by 255
+%           type==1 indicates that the data is substracted by [129.1863,104.7624,93.5940]
+%  averageImg               -- the mean value of three channels;if gray,it
+%          is zero,otherwise,[129.1863,104.7624,93.5940]
+%  caffe_path               -- the matlab path in compilated caffe
+caffe_path='/home/scw4750/github/caffe/matlab';
+addpath(genpath(caffe_path));
+
+% % for lightencnn
+% prototxt='/home/scw4750/github/IJCB2017/lightencnn_deploy.prototxt';
+% caffemodel='/home/scw4750/github/IJCB2017/final_LightenedCNN_C.caffemodel';
+% data_key='image';
+% feature_key='eltwise_fc1';
+% is_gray=true;  
+% data_size=[128 128] 
+% is_transpose=true;
+% norm_type=0;  %type=0 indicates that the data is just divided by 255
+% averageImg=[0 0 0]
+
+
+%for vgg
+prototxt='/home/scw4750/github/vgg_face_caffe/VGG_FACE_deploy.prototxt';
+caffemodel='/home/scw4750/github/vgg_face_caffe/VGG_FACE.caffemodel';
+data_key='data';
+feature_key='fc7'; 
+is_gray=false;
+data_size=[224 224];
+is_transpose=true;
+norm_type=1;
+averageImg=[129.1863,104.7624,93.5940] ;
+
+%for face-caffe
+%prototxt='/home/scw4750/github/caffe-face-caffe-face/face_example/face_deploy.prototxt';
+%caffemodel='/home/scw4750/github/caffe-face-caffe-face/face_model.caffemodel';
+%data_key='data';
+%feature_key='fc5'
+%is_gray=false;
+%data_size=[112 96];
+%is_transpose=true;
+%norm_type=2
+%averageImg=[0 0 0];
+
+
+net=caffe.Net(prototxt,caffemodel,'test');
+caffe.set_mode_gpu();
+
+gallery_dir='/home/scw4750/github/IJCB2017/liangjie/croped/enlarge_mulitpie_croped_by_liang/gallery';
+probe_dir='/home/scw4750/github/IJCB2017/liangjie/croped/enlarge_mulitpie_croped_by_liang/probe';
+% gallery_txt='/home/scw4750/github/IJCB2017/liangjie/txt/gallery_list.txt';
+%for baseline dataset
+% gallery_txt='/home/scw4750/github/IJCB2017/liangjie/txt/baseline_list.txt';
+%for images croped by liang
+gallery_txt='/home/scw4750/github/IJCB2017/liangjie/txt/gallery_list_croped_by_liang.txt';
+probe_txt='/home/scw4750/github/IJCB2017/liangjie/txt/probe_list.txt';
+
+%read list
+gallery=get_name_label_by_txt(gallery_txt);
+probe=get_name_label_by_txt(probe_txt);
+
+%info for extract_feature
+
+
+%extract feature
+for i_g=1:length(gallery)
+    fprintf('extract faeture i_g:%d\n',i_g);
+    feature=extract_feature_single(gallery_dir,gallery(i_g).name,data_size,data_key,feature_key,net,is_gray,is_transpose,norm_type,averageImg);
+    gallery(i_g).fea=feature;
+end
+for i_p=1:length(probe)
+    fprintf('extract faeture i_p:%d\n',i_p);
+    feature=extract_feature_single(probe_dir,probe(i_p).name,data_size,data_key,feature_key,net,is_gray,is_transpose,norm_type,averageImg);
+    probe(i_p).fea=feature;
+end
+%compute rank
+rankn=compute_rank_single(gallery,probe,50);
+fprintf('rank1: %f\n',rankn(1));
+
+caffe.reset_all();
+
+function result=get_name_label_by_txt(txt)
+fid=fopen(txt,'rt');
+list=textscan(fid,'%s %f');
+fclose(fid);
+for i_g=1:length(list{1})
+    result(i_g).name=list{1,1}{i_g};
+    result(i_g).label=list{1,2}(i_g);
+end
+end
