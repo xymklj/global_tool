@@ -1,7 +1,18 @@
-
-%the gallery and probe should be a struct and contain attribute : fea and
-%label.
 function rank_score=compute_rank_single(gallery,probe,rank_n)
+%compute rank_socre 
+%
+%input:
+%  gallery  -- a struct that has field fea() and its label for gallery
+%  probe    -- a struct that has field fea() and its label for probe
+%  rank_n   -- the max rank number
+%
+%output:
+%  rank_score
+%
+%
+%Jun Hu
+%2017-3
+addpath(genpath('../..'));
 
 rank_count=zeros(rank_n,1);
 

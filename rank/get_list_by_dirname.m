@@ -1,4 +1,12 @@
 function get_list_by_dirname(img_dir,txt_name)
+%get list by directory name just for the directory such as  class_number/the_images_for_the_class
+%input:
+%  img_dir    --the root dir for all image  
+%txt_name:
+%  txt_name   --the output list name
+%
+%Jun Hu
+%2017-3
 fid=fopen(txt_name,'wt');
 img_struct=dir(img_dir);
 img_struct=img_struct(3:end);

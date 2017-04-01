@@ -4,7 +4,7 @@ function result_rankn=compute_rank(gallery_dir,probe_dir,gallery_txt,probe_txt,p
 %
 %inputs:
 %  gallery(probe)_dir --the direcory contains imgs
-%  gallery(probe)_txt --the txt contains lines such as *.png *.jpg.
+%  gallery(probe)_txt --the txt contains lines such as *.png *.jpg and its labels.
 %           Notices:gallery(probe)_dir+(lines in gallery(probe)_txt) should be the
 %           full path of all images
 %  prototxt and caffemodel  -- for special network
@@ -12,13 +12,21 @@ function result_rankn=compute_rank(gallery_dir,probe_dir,gallery_txt,probe_txt,p
 %  feature_key                 -- the feature layer name
 %  is_gray                  -- true if the channel of input layer is
 %           1;false if the channel of input layer is 3
-%  data_size                -- the data size of input layer
+%  data_size                -- the data size of input layer.Example:[height width]
 %  norm_type                -- type=0 indicates that the data is just divided by 255
 %           type==1 indicates that the data is substracted by [129.1863,104.7624,93.5940]
+%           type==2 indicates that we process data as eccv16 deep face
 %  averageImg               -- the mean value of three channels;if gray,it
 %          is zero,otherwise,[129.1863,104.7624,93.5940]
 %  rank_n                   -- to calculate rank 1-n
 %  caffe_path               -- the matlab path in compilated caffe
+
+%output:
+%      			    --the rank 1-n cumulative scores
+%
+%Jun Hu
+%2017-3
+addpath(genpath('../..'));
 
 addpath(genpath(caffe_path));
 
