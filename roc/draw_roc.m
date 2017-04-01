@@ -1,5 +1,5 @@
 function [pos_pair,neg_pair]=draw_roc(pos_ori_dir,pos_pair_dir,neg_ori_dir,neg_pair_dir,ori_txt, ...
-    pair_txt,net,net_param,pos_mat,neg_mat)
+    pair_txt,caffe_path,prototxt,caffemodel,net_param,pos_mat,neg_mat)
 %draw roc curve for cnn
 %
 %inputs:
@@ -26,7 +26,11 @@ function [pos_pair,neg_pair]=draw_roc(pos_ori_dir,pos_pair_dir,neg_ori_dir,neg_p
 %
 %Jun Hu
 %2017-4
-if nargin <=8
+addpath(genpath(caffe_path));
+caffe.set_mode_gpu();
+net=caffe.Net(prototxt,caffemodel,'test');
+
+if nargin <=10
 pos_pair=makePosPair(ori_txt,pair_txt,3000,0);
 neg_pair=makeNegPair(ori_txt,pair_txt,3000,0);
 else
@@ -63,4 +67,6 @@ neg_label=zeros(1,length(neg_pair));
 scores=[pos_scores neg_scores];
 labels=[pos_label neg_label];
 ROC(scores,labels,10,0);
+
+caffe.reset_all();
 end

@@ -12,7 +12,6 @@ function rank_score=compute_rank_single(gallery,probe,rank_n)
 %
 %Jun Hu
 %2017-3
-addpath(genpath('../..'));
 
 rank_count=zeros(rank_n,1);
 

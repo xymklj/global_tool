@@ -1,8 +1,7 @@
 clear;
 caffe_path='/home/scw4750/github/caffe/matlab';
-caffe.set_mode_gpu();
+
 addpath(genpath('..'));
-addpath(genpath(caffe_path));
 
 % % for lightencnn
 % prototxt='/home/scw4750/github/IJCB2017/lightencnn_deploy.prototxt';
@@ -37,8 +36,6 @@ is_transpose=true;
 norm_type=0;
 averageImg=[0 0 0];
 
-net=caffe.Net(prototxt,caffemodel,'test');
-
 ori_txt='/home/scw4750/github/IJCB2017/liangjie/txt/gallery_list_croped_by_liang.txt';
 pair_txt='/home/scw4750/github/IJCB2017/liangjie/txt/probe_list.txt';
 
@@ -55,4 +52,4 @@ net_param.is_gray=is_gray;
 net_param.norm_type=norm_type;
 net_param.averageImg=averageImg;
 
-[pos_pair,neg_pair]=draw_roc(pos_ori_dir,pos_pair_dir,neg_ori_dir,neg_pair_dir,ori_txt,pair_txt,net,net_param);
+[pos_pair,neg_pair]=draw_roc(pos_ori_dir,pos_pair_dir,neg_ori_dir,neg_pair_dir,ori_txt,pair_txt,caffe_path,prototxt,caffemodel,net_param);
