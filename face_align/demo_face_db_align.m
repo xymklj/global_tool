@@ -19,7 +19,7 @@ clear;
 %         2. the resized image must be square
 %Jun Hu
 %2017-4
-face_dir='/home/scw4750/github/IJCB2017/liangjie/croped/with_pts/enlarge_multipie_han_with_pts/gallery';
+face_dir='/home/scw4750/github/IJCB2017/liangjie/croped/with_pts/baseline_mulitpie_with_pts/gallery';
 ffp_dir=face_dir;
 ec_mc_y=48;
 ec_y=48;
