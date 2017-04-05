@@ -8,7 +8,8 @@ function rank_score=compute_rank_single(gallery,probe,rank_n)
 %
 %output:
 %  rank_score
-%
+%notices:
+%           -- just for the scores that the bigger the better.
 %
 %Jun Hu
 %2017-3
@@ -29,6 +30,7 @@ for i_p=1:length(probe)
         end
         rank_count(i_s)=rank_count(i_s)+(probe(i_p).label==gallery(index(i_s)).label||has_pinned);
     end
+    debug(i_p)=gallery(index(1));
 end
 rank_score=single(rank_count)/single(length(probe));
 end
