@@ -1,4 +1,4 @@
-function result_rankn=compute_rank(gallery_dir,probe_dir,gallery_txt,probe_txt,caffe_path,prototxt,caffemodel,net_param,rank_n)
+function result_rankn=compute_rank(gallery_dir,probe_dir,gallery_txt,probe_txt,caffe_path,prototxt,caffemodel,net_param,preprocess_param,rank_n)
 %compute the rank 1-n for cnn
 %
 %inputs:
@@ -43,15 +43,16 @@ is_gray=net_param.is_gray;
 norm_type=net_param.norm_type;
 averageImg=net_param.averageImg;
 
+
 %extract feature
 for i_g=1:length(gallery)
     fprintf('extract faeture i_g:%d\n',i_g);
-    feature=extract_feature_single(gallery_dir,gallery(i_g).name,data_size,data_key,feature_key,net,is_gray,norm_type,averageImg);
+    feature=extract_feature_single(gallery_dir,gallery(i_g).name,data_size,data_key,feature_key,net,preprocess_param,is_gray,norm_type,averageImg);
     gallery(i_g).fea=feature;
 end
 for i_p=1:length(probe)
     fprintf('extract faeture i_p:%d\n',i_p);
-    feature=extract_feature_single(probe_dir,probe(i_p).name,data_size,data_key,feature_key,net,is_gray,norm_type,averageImg);
+    feature=extract_feature_single(probe_dir,probe(i_p).name,data_size,data_key,feature_key,net,preprocess_param,is_gray,norm_type,averageImg);
     probe(i_p).fea=feature;
 end
 %compute rank

@@ -1,8 +1,23 @@
-function feature=extract_feature_single_image(img,img_size,data_key,feature_key,net,is_gray,norm_type,averageImg)
+function feature=extract_feature_single(img,img_size,data_key,feature_key,net,preprocess_param,is_gray,norm_type,averageImg)
+
 %the difference betwenn extract_feature_single_image and extract_feature_single is that
 %        the input is not the same: one is image,and anthor is the location of the image in disk
 %
-
+img=imread([img_dir filesep img_file]);
+if isfield(preprocess_param,'is_square') && preprocess_param.is_square
+       height=size(img,1);
+       width=size(img,2);
+       padding_factor=1;
+       if isfield(preprocess_param,'padding_factor')
+           padding_factor=preprocess_param.padding_factor;
+	end
+       final_size=int32(max(width,height)*padding_factor);
+       data=uint8(ones(final_size,final_size,3)*255);
+       data(int32((final_size-height)/2)+1:int32((final_size-height)/2)+height,...
+           int32((final_size-width)/2)+1:int32((final_size-width)/2)+width,:)= ...
+           img(1:end,1:end,:);
+end
+img=data;
 %fprintf('img %s\n',[img_dir filesep img_file]);
 if norm_type==2
     cropImg=imresize(img,img_size);
