@@ -58,7 +58,7 @@ end
 if nargin>4
     fid=fopen(output_txt,'wt');
     for i=1:length(posPair)
-        fprintf(fid,'%s %s %d',posPair(i).ori,posPair(i).pair,posPair(i).label);
+        fprintf(fid,'%s %s %d',posPair(i).ori_name,posPair(i).pair_name,posPair(i).label);
     end
     fclose(fid);
 end

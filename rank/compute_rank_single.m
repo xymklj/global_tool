@@ -21,6 +21,9 @@ for i_p=1:length(probe)
     for i_g=1:length(gallery)
         result(i_g).score=compute_cosine_score(gallery(i_g).fea,probe(i_p).fea);
     end
+%     if i_p==163
+%        asdf=2; 
+%     end
     [sort_score,index]=sort([result.score],'descend');
     %     thre=sort_score(rank_n);
     has_pinned=0;

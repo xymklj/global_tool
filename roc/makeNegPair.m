@@ -60,7 +60,7 @@ end
 if nargin>4
     fid=fopen(output_txt,'wt');
     for i=1:length(negPair)
-        fprintf(fid,'%s %s %d',negPair(i).ori,negPair(i).pair,negPair(i).label);
+        fprintf(fid,'%s %s %d',negPair(i).ori_name,negPair(i).pair_name,negPair(i).label);
     end
     fclose(fid);
 end
