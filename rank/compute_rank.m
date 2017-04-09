@@ -49,13 +49,13 @@ for i_g=1:length(gallery)
     fprintf('extract faeture i_g:%d\n',i_g);
     feature=extract_feature_single(gallery_dir,gallery(i_g).name,data_size,data_key,feature_key,net,preprocess_param,is_gray,norm_type,averageImg);
     gallery(i_g).fea=feature;
-    gallery(i_g).img=imread([gallery_dir filesep gallery(i_g).name]);
+    %gallery(i_g).img=imread([gallery_dir filesep gallery(i_g).name]);
 end
 for i_p=1:length(probe)
     fprintf('extract faeture i_p:%d\n',i_p);
     feature=extract_feature_single(probe_dir,probe(i_p).name,data_size,data_key,feature_key,net,preprocess_param,is_gray,norm_type,averageImg);
     probe(i_p).fea=feature;
-    probe(i_p).img=imread([probe_dir filesep probe(i_p).name]);
+    %probe(i_p).img=imread([probe_dir filesep probe(i_p).name]);
 end
 %compute rank
 result_rankn=compute_rank_single(gallery,probe,rank_n);

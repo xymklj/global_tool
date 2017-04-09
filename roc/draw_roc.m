@@ -1,5 +1,5 @@
 function [pos_pair,neg_pair]=draw_roc(pos_ori_dir,pos_pair_dir,neg_ori_dir,neg_pair_dir,ori_txt, ...
-    pair_txt,caffe_path,prototxt,caffemodel,net_param,pos_mat,neg_mat)
+    pair_txt,caffe_path,prototxt,caffemodel,net_param,preprocess_param,pos_mat,neg_mat)
 %draw roc curve for cnn
 %
 %inputs:
@@ -19,7 +19,9 @@ function [pos_pair,neg_pair]=draw_roc(pos_ori_dir,pos_pair_dir,neg_ori_dir,neg_p
 %           type==2 indicates that we process data as eccv16 deep face
 %  net_param.averageImg               -- the mean value of three channels;if gray,it
 %          is zero,otherwise,[129.1863,104.7624,93.5940]
-
+%
+%  pos_mat,neg_mat                    -- the postive(negative) pair name should be pos_pair,neg_pair 
+%
 %output:
 %      			                       --the postive and negative pair with its feature and
 %      			    score
@@ -30,12 +32,12 @@ addpath(genpath(caffe_path));
 caffe.set_mode_gpu();
 net=caffe.Net(prototxt,caffemodel,'test');
 
-if nargin <=10
+if nargin <=11
 pos_pair=makePosPair(ori_txt,pair_txt,3000,0);
 neg_pair=makeNegPair(ori_txt,pair_txt,3000,0);
 else
-    load('pos_mat');
-    load('neg_mat');
+    load(pos_mat);
+    load(neg_mat);
 end
 data_size=net_param.data_size;
 data_key=net_param.data_key;
@@ -47,17 +49,17 @@ averageImg=net_param.averageImg;
 for i_p=1:length(pos_pair)
     i_p
     pos_pair(i_p).ori_fea=extract_feature_single(pos_ori_dir,pos_pair(i_p).ori_name,data_size, ...
-        data_key,feature_key,net,is_gray,norm_type,averageImg);
+        data_key,feature_key,net,preprocess_param,is_gray,norm_type,averageImg);
     pos_pair(i_p).pair_fea=extract_feature_single(pos_pair_dir,pos_pair(i_p).pair_name,data_size, ...
-        data_key,feature_key,net,is_gray,norm_type,averageImg);
+        data_key,feature_key,net,preprocess_param,is_gray,norm_type,averageImg);
     pos_pair(i_p).score=compute_cosine_score(pos_pair(i_p).ori_fea,pos_pair(i_p).pair_fea);
 end
 for i_p=1:length(neg_pair)
     i_p
     neg_pair(i_p).ori_fea=extract_feature_single(neg_ori_dir,neg_pair(i_p).ori_name,data_size, ...
-        data_key,feature_key,net,is_gray,norm_type,averageImg);
+        data_key,feature_key,net,preprocess_param,is_gray,norm_type,averageImg);
     neg_pair(i_p).pair_fea=extract_feature_single(neg_pair_dir,neg_pair(i_p).pair_name,data_size, ...
-        data_key,feature_key,net,is_gray,norm_type,averageImg);
+        data_key,feature_key,net,preprocess_param,is_gray,norm_type,averageImg);
     neg_pair(i_p).score=compute_cosine_score(neg_pair(i_p).ori_fea,neg_pair(i_p).pair_fea);
 end
 pos_scores=extractfield(pos_pair,'score');

@@ -5,37 +5,43 @@ function feature=extract_feature_single(img,img_size,data_key,feature_key,net,pr
 %
 % img=imread([img_dir filesep img_file]);
 if isfield(preprocess_param,'is_square') && preprocess_param.is_square
-       height=size(img,1);
-       width=size(img,2);
-       padding_factor=1;
-       if isfield(preprocess_param,'padding_factor')
-           padding_factor=preprocess_param.padding_factor;
-       end
-       top_diff=0;down_diff=0;left_diff=0;right_diff=0;
-              if isfield(preprocess_param,'top_diff')
-           top_diff=preprocess_param.top_diff;
-       end
-       if isfield(preprocess_param,'down_diff')
-           down_diff=preprocess_param.down_diff;
-       end
-       if isfield(preprocess_param,'left_diff')
-           left_diff=preprocess_param.left_diff;
-       end
-       if isfield(preprocess_param,'right_diff')
-           right_diff=preprocess_param.right_diff;
-       end
-       final_size=int32(max(width,height)*padding_factor);
-       data=uint8(ones(final_size,final_size,3)*255);
-       data(int32((final_size-height)/2)+1:int32((final_size-height)/2)+height,...
-           int32((final_size-width)/2)+1:int32((final_size-width)/2)+width,:)= ...
-           img(1:end,1:end,:);
+    height=size(img,1);
+    width=size(img,2);
+    padding_factor=1;
+    if isfield(preprocess_param,'padding_factor')
+        padding_factor=preprocess_param.padding_factor;
+    end
+    top_diff=0;down_diff=0;left_diff=0;right_diff=0;
+    if isfield(preprocess_param,'top_diff')
+        top_diff=preprocess_param.top_diff;
+    end
+    if isfield(preprocess_param,'down_diff')
+        down_diff=preprocess_param.down_diff;
+    end
+    if isfield(preprocess_param,'left_diff')
+        left_diff=preprocess_param.left_diff;
+    end
+    if isfield(preprocess_param,'right_diff')
+        right_diff=preprocess_param.right_diff;
+    end
+    final_size=int32(max(width,height)*padding_factor);
+    data=uint8(ones(final_size,final_size,3)*255);
+    data(int32((final_size-height)/2)+1:int32((final_size-height)/2)+height,...
+        int32((final_size-width)/2)+1:int32((final_size-width)/2)+width,:)= ...
+        img(1:end,1:end,:);
 end
 if exist('data','var')
-  img=data;
+    img=data;
 end
 %fprintf('img %s\n',[img_dir filesep img_file]);
 if norm_type==2
     cropImg=imresize(img,img_size);
+    temp=cropImg;
+    if size(cropImg,3)==1
+        cropImg(:,:,1)=temp;
+        cropImg(:,:,2)=temp;
+        cropImg(:,:,3)=temp;
+    end
     cropImg = single(cropImg);
     cropImg = (cropImg - 127.5)/128;
     cropImg = permute(cropImg, [2,1,3]);
