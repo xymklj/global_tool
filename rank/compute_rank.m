@@ -8,16 +8,9 @@ function result_rankn=compute_rank(gallery_dir,probe_dir,gallery_txt,probe_txt,c
 %           full path of all images
 %  caffe_path               -- the matlab path in compilated caffe
 %  prototxt and caffemodel  -- for special network
-%  net_param.data_key                 -- the input data layer name
-%  net_param.feature_key                 -- the feature layer name
-%  net_param.is_gray                  -- true if the channel of input layer is
-%           1;false if the channel of input layer is 3
-%  net_param.data_size                -- the data size of input layer.Example:[height width]
-%  net_param.norm_type                -- type=0 indicates that the data is just divided by 255
-%           type==1 indicates that the data is substracted by [129.1863,104.7624,93.5940]
-%           type==2 indicates that we process data as eccv16 deep face
-%  net_param.averageImg               -- the mean value of three channels;if gray,it
-%          is zero,otherwise,[129.1863,104.7624,93.5940]
+%
+%  net_param and preprocess_param     --see net_param_preprocess_param_doc.txt in root directory. 
+%
 %  rank_n                   -- to calculate rank 1-n
 
 %output:

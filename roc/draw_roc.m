@@ -1,26 +1,18 @@
-function [pos_pair,neg_pair]=draw_roc(pos_ori_dir,pos_pair_dir,neg_ori_dir,neg_pair_dir,ori_txt, ...
-    pair_txt,caffe_path,prototxt,caffemodel,net_param,preprocess_param,pos_mat,neg_mat)
+function [scores,labels]=draw_roc(pos_ori_dir,pos_pair_dir,neg_ori_dir,neg_pair_dir,posPair_txt, ...
+    negPair_txt,caffe_path,prototxt,caffemodel,net_param,preprocess_param)
 %draw roc curve for cnn
 %
 %inputs:
 %  pos(neg)_ori_dir                   --the direcory contains origin images
 %  pos(neg)_pair_dir                  --the direcory contains pair images
-%  ori(pair)_txt                      --the txt contains lines such as *.png *.jpg and its labels.
+%  posPair_txt                        --the txt contains lines as the relative path of origin image,pair image and 1.
 %           Notices:pos(neg)_ori_dir+(lines in pos(neg)_txt) should be the
 %           full path of all images
+%  negPair_txt                        --the txt contains lines as the relative path of origin image,pair image and 0.
+%  caffe_path                         -- the matlab path in compilated caffe
+%  prototxt and caffemodel            -- for special network
 %  net                                -- for special network
-%  net_param.data_key                 -- the input data layer name
-%  net_param.feature_key              -- the feature layer name
-%  net_param.is_gray                  -- true if the channel of input layer is
-%           1;false if the channel of input layer is 3
-%  net_param.data_size                -- the data size of input layer.Example:[height width]
-%  net_param.norm_type                -- type=0 indicates that the data is just divided by 255
-%           type==1 indicates that the data is substracted by [129.1863,104.7624,93.5940]
-%           type==2 indicates that we process data as eccv16 deep face
-%  net_param.averageImg               -- the mean value of three channels;if gray,it
-%          is zero,otherwise,[129.1863,104.7624,93.5940]
-%
-%  pos_mat,neg_mat                    -- the postive(negative) pair name should be pos_pair,neg_pair 
+%  net_param and preprocess_param     --see net_param_preprocess_param_doc.txt in root directory.
 %
 %output:
 %      			                       --the postive and negative pair with its feature and
@@ -32,13 +24,22 @@ addpath(genpath(caffe_path));
 caffe.set_mode_gpu();
 net=caffe.Net(prototxt,caffemodel,'test');
 
-if nargin <=11
-pos_pair=makePosPair(ori_txt,pair_txt,3000,0);
-neg_pair=makeNegPair(ori_txt,pair_txt,3000,0);
-else
-    load(pos_mat);
-    load(neg_mat);
+fid=fopen(posPair_txt,'rt');
+list=textscan(fid,'%s %s %d');
+for i=1:length(list{1})
+    pos_pair(i).ori_name=list{1}{i};
+    pos_pair(i).pair_name=list{2}{i};
 end
+fclose(fid);
+
+fid=fopen(negPair_txt,'rt');
+list=textscan(fid,'%s %s %d');
+for i=1:length(list{1})
+    neg_pair(i).ori_name=list{1}{i};
+    neg_pair(i).pair_name=list{2}{i};
+end
+fclose(fid);
+
 data_size=net_param.data_size;
 data_key=net_param.data_key;
 feature_key=net_param.feature_key;

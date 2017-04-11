@@ -1,4 +1,4 @@
-function res = face_db_align(face_dir, ffp_dir, ec_mc_y, ec_y, img_size, save_dir,file_filter,output_format)
+function res = face_db_align(face_dir, ffp_dir, ec_mc_y, ec_y, img_size, save_dir,file_filter,output_format,pts_format)
 
 % center of eyes (ec), center of l&r mouth(mc), rotate and resize
 % ec_mc_y: y_mc-y_ec, diff of height of ec & mc, to scale the image.
@@ -26,7 +26,7 @@ for i=1: length(subdir)
     img_fns = dir([face_dir filesep subdir(i).name filesep file_filter]);
     for k=1: length(img_fns)
         img = imread([face_dir filesep subdir(i).name filesep img_fns(k).name]);
-        ffp_fn = [ffp_dir filesep subdir(i).name filesep img_fns(k).name(1:end-3) '5pt'];
+        ffp_fn = [ffp_dir filesep subdir(i).name filesep img_fns(k).name(1:end-3) pts_format];
         if exist(ffp_fn, 'file') == 0
             img2 = img;
             fprintf('%s NOT exists.\n', ffp_fn);
@@ -36,41 +36,46 @@ for i=1: length(subdir)
             crop_x = floor((imgw - crop_size)/2);
             img_cropped = img(crop_y:crop_y+crop_size-1, crop_x:crop_x+crop_size-1,:);
             eyec = [1 1];
-%             fprintf(log_fid, '%s nonexists, cropped center\n', ffp_fn);
+            %             fprintf(log_fid, '%s nonexists, cropped center\n', ffp_fn);
         else
-            disp(ffp_fn);         
+            disp(ffp_fn);
             f5pt = read_5pt(ffp_fn);
             [img2, eyec, img_cropped, resize_scale] = align(img, f5pt, crop_size, ec_mc_y, ec_y);
         end
-%         fprintf(log_fid, '%s %f\n', ffp_fn, resize_scale);
-        
+%         
 %         figure(1);
 %         subplot(1,3,1);
 %         imshow(img);
 %         hold on;
+%         plot(f5pt(1:5,1),f5pt(1:5,2),'.g');
+% 
 %         plot(f5pt(1,1),f5pt(1,2), 'bo');
 %         plot(f5pt(2,1),f5pt(2,2), 'bo');
 %         hold off;
 %         subplot(1,3,2);
 %         imshow(img2);
-% %         rectangle('Position', [round(eyec(1)) round(eyec(2)) 10 10]);
+%         %         rectangle('Position', [round(eyec(1)) round(eyec(2)) 10 10]);
 %         hold on;
 %         plot(eyec(1), eyec(2), 'ro');
 %         plot(10,100, 'bx');
 %         hold off;
 %         subplot(1,3,3);
 %         imshow(img_cropped);
+%         hei=size(img_cropped,1)/2;
+%         wid=size(img_cropped,2)/2;
+%         hold on;
+%         %         plot(hei,wid,'.g');
 %         pause;
-        
+%         
         
         
         img_final = imresize(img_cropped, [img_size img_size], 'Method', 'bicubic');
-%         if size(img_final,3)>1
-%             img_final = rgb2gray(img_final);
-%         end
+        %         if size(img_final,3)>1
+        %             img_final = rgb2gray(img_final);
+        %         end
         save_fn = [save_dir filesep subdir(i).name filesep img_fns(k).name(1:end-3) output_format];
         imwrite(img_final, save_fn);
-    end 
+    end
 end
 
 % fclose(log_fid);
@@ -78,9 +83,15 @@ end
 
 function res = read_5pt(fn)
 fid = fopen(fn, 'r');
-raw = textscan(fid, '%f %f');
+raw = textscan(fid, '%f;%f;');
 fclose(fid);
 res = [raw{1} raw{2}];
+% fid = fopen(fn, 'r');
+% raw = textscan(fid, '%f;');
+% raw=raw{1};
+% fclose(fid);
+% res(1:5,1)=raw(1:5);
+% res(1:5,2)=raw(6:10);
 end
 
 function [res, eyec2, cropped, resize_scale] = align(img, f5pt, crop_size, ec_mc_y, ec_y)
@@ -133,19 +144,19 @@ img_crop(box(3)-crop_y+1:box(4)-crop_y+1, box(1)-crop_x+1:box(2)-crop_x+1,:) = i
 cropped = img_crop/255;
 end
 
-function r = guard(x, Nx,Ny)  
+function r = guard(x, Nx,Ny)
 x(x<1)=1;
 if x(1)>Nx
-   x(1)=Nx; 
+    x(1)=Nx;
 end
 if x(2)>Nx
-   x(2)=Nx; 
+    x(2)=Nx;
 end
 if x(3)>Ny
-   x(3)=Ny; 
+    x(3)=Ny;
 end
 if x(4)>Ny
-   x(4)=Ny; 
+    x(4)=Ny;
 end
 r = x;
 end

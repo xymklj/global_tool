@@ -20,14 +20,16 @@ clear;
 %         3. the images should be stored as  root_dir/class/image
 %Jun Hu
 %2017-4
-face_dir='/home/scw4750/github/IJCB2017/liangjie/croped/with_pts/baseline_mulitpie_with_pts/gallery';
+face_dir='/home/scw4750/github/global_tool/face_align/color';
 ffp_dir=face_dir;
 ec_mc_y=48;
 ec_y=48;
 img_size=128;
-save_dir=face_dir;
+save_dir='/home/scw4750/github/global_tool/face_align/result';
 % save_dir='/home/scw4750/github/IJCB2017/liangjie/croped/with_pts/enlarge_mulitpie_croped_by_liang_with_pts/gallery';
+pts_format='txt';
 output_format='png';
-face_db_align(face_dir, ffp_dir, ec_mc_y, ec_y, img_size, save_dir,'*.png',output_format);
+filter='*.jpg';
+face_db_align(face_dir, ffp_dir, ec_mc_y, ec_y, img_size, save_dir,'*.jpg',output_format,pts_format);
 
 

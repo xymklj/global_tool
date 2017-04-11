@@ -11,19 +11,19 @@ if isfield(preprocess_param,'is_square') && preprocess_param.is_square
     if isfield(preprocess_param,'padding_factor')
         padding_factor=preprocess_param.padding_factor;
     end
-    top_diff=0;down_diff=0;left_diff=0;right_diff=0;
-    if isfield(preprocess_param,'top_diff')
-        top_diff=preprocess_param.top_diff;
-    end
-    if isfield(preprocess_param,'down_diff')
-        down_diff=preprocess_param.down_diff;
-    end
-    if isfield(preprocess_param,'left_diff')
-        left_diff=preprocess_param.left_diff;
-    end
-    if isfield(preprocess_param,'right_diff')
-        right_diff=preprocess_param.right_diff;
-    end
+%     top_diff=0;down_diff=0;left_diff=0;right_diff=0;
+%     if isfield(preprocess_param,'top_diff')
+%         top_diff=preprocess_param.top_diff;
+%     end
+%     if isfield(preprocess_param,'down_diff')
+%         down_diff=preprocess_param.down_diff;
+%     end
+%     if isfield(preprocess_param,'left_diff')
+%         left_diff=preprocess_param.left_diff;
+%     end
+%     if isfield(preprocess_param,'right_diff')
+%         right_diff=preprocess_param.right_diff;
+%     end
     final_size=int32(max(width,height)*padding_factor);
     data=uint8(ones(final_size,final_size,3)*255);
     data(int32((final_size-height)/2)+1:int32((final_size-height)/2)+height,...

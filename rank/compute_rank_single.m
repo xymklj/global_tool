@@ -32,11 +32,11 @@ for i_p=1:length(probe)
             has_pinned=1;
         end
         rank_count(i_s)=rank_count(i_s)+(probe(i_p).label==gallery(index(i_s)).label||has_pinned);
-%     end
-%    debug(i_p).gal_label=gallery(index(1)).label;
-%    debug(i_p).pro_label=probe(i_p).label;
-%    debug(i_p).gal_name=gallery(index(1)).name;
-%    debug(i_p).pro_name=probe(i_p).name;
+    end
+   debug(i_p).gal_label=gallery(index(1)).label;
+   debug(i_p).pro_label=probe(i_p).label;
+   debug(i_p).gal_name=gallery(index(1)).name;
+   debug(i_p).pro_name=probe(i_p).name;
 end
 rank_score=single(rank_count)/single(length(probe));
 end
