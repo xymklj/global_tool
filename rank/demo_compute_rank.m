@@ -43,39 +43,22 @@ net_param.is_gray=is_gray;
 net_param.norm_type=norm_type;
 net_param.averageImg=averageImg;
 
+preprocess_param.do_alignment=true;
+align_param.alignment_type='lightcnn';
+preprocess_param.align_param=align_param;
 
-gallery_txt='/home/scw4750/github/IJCB2017/liangjie/txt/gallery_list.txt';
+gallery_txt='/home/scw4750/github/IJCB2017/liangjie/txt/baseline_gallery_list.txt';
 probe_txt='/home/scw4750/github/IJCB2017/liangjie/txt/probe_list.txt';
 
-%for face alignment data
-gallery_root_dir='/home/scw4750/github/IJCB2017/liangjie/croped/with_pts';
-probe_dir='/home/scw4750/github/IJCB2017/liangjie/croped/with_pts/global_probe_with_pts';
-gallery_dir_name={'enlarge_mulitpie_croped_by_liang_with_pts' 'enlarge_mulitpie_vis_croped_by_liang_with_pts' ...
-    'enlarge_multipie_han_with_pts' 'enlarge_multipie_single_with_pts'};
+gallery_dir='/home/scw4750/github/IJCB2017/liangjie/croped/test_alignment/gallery';
+probe_dir='/home/scw4750/github/IJCB2017/liangjie/croped/test_alignment/probe';
 
-% %for images croped by liang
-% gallery_root_dir='/home/scw4750/github/IJCB2017/liangjie/croped/without_pts';
-% probe_dir='/home/scw4750/github/IJCB2017/liangjie/croped/without_pts/global_probe';
-% gallery_dir_name={'enlarge_mulitpie' 'enlarge_mulitpie_vis' 'enlarge_multipie_single' ...
-%     'enlarge_multipie_han' 'enlarge_multipie_single_croped_by_liang' 'enlarge_mulitpie_croped_by_liang' ...
-%     'enlarge_mulitpie_vis_croped_by_liang'};
-
-
-for i=1:length(gallery_dir_name)
-    gallery_dir=[gallery_root_dir filesep gallery_dir_name{i} filesep 'gallery'];
-    result_rankn = compute_rank(gallery_dir,probe_dir,gallery_txt,probe_txt,caffe_path,prototxt,caffemodel, ...
-        net_param,rank_n);
-    cmc(i).name=gallery_dir_name{i};
-    cmc(i).rankn=result_rankn;
-end
-
-baseline_gallery_txt='/home/scw4750/github/IJCB2017/liangjie/txt/baseline_gallery_list.txt';
+baseline_gallery_txt=gallery_txt;
 % %for baseline dataset without alignment
 % gallery_dir='/home/scw4750/github/IJCB2017/liangjie/croped/without_pts/baseline_mulitpie/gallery';
 % %for face alignment data
-gallery_dir='/home/scw4750/github/IJCB2017/liangjie/croped/with_pts/baseline_mulitpie_with_pts/gallery';
 result_rankn = compute_rank(gallery_dir,probe_dir,baseline_gallery_txt,probe_txt,caffe_path,prototxt,caffemodel, ...
-    net_param,rank_n);
-cmc(i+1).name='baseline_mulitpie';
-cmc(i+1).rankn=result_rankn;
+    net_param,preprocess_param,rank_n);
+cmc(1).name='baseline_mulitpie';
+cmc(1).rankn=result_rankn;
 

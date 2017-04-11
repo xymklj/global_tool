@@ -1,37 +1,46 @@
-function feature=extract_feature_single(img,img_size,data_key,feature_key,net,preprocess_param,is_gray,norm_type,averageImg)
+function feature=extract_feature_single_image(img,img_size,data_key,feature_key,net,preprocess_param,is_gray,norm_type,averageImg)
 
 %the difference betwenn extract_feature_single_image and extract_feature_single is that
 %        the input is not the same: one is image,and anthor is the location of the image in disk
 %
-% img=imread([img_dir filesep img_file]);
-if isfield(preprocess_param,'is_square') && preprocess_param.is_square
-    height=size(img,1);
-    width=size(img,2);
-    padding_factor=1;
-    if isfield(preprocess_param,'padding_factor')
-        padding_factor=preprocess_param.padding_factor;
+assert(norm_type<=2,'norm_type should be less than 3 now');
+if isfield(preprocess_param,'do_alignment')
+    assert(isfield(preprocess_param,'align_param'),'align_param should be provided\n');
+    align_param=preprocess_param.align_param;
+    if strcmp(align_param.alignment_type,'lightcnn')
+        f5pt(1:5,1)=align_param.facial_point(1:2:9);
+        f5pt(1:5,2)=align_param.facial_point(2:2:10);
+        [img2, eyec, img_cropped, resize_scale] = align(img, f5pt, 128, 48, 48);
+        img=img_cropped;
+    elseif strcmp(align_param.alignment_type,'eccv16')
+        imgSize = [112, 96];
+        coord5points = [30.2946, 65.5318, 48.0252, 33.5493, 62.7299; ...
+            51.6963, 51.5014, 71.7366, 92.3655, 92.2041];
+        facial5points(1,1:5)=align_param.facial_point(1:2:9);
+        facial5points(2,1:5)=align_param.facial_point(2:2:10);
+        Tfm =  cp2tform(facial5points', coord5points', 'similarity');
+        cropImg = imtransform(img, Tfm, 'XData', [1 imgSize(2)],...
+            'YData', [1 imgSize(1)], 'Size', imgSize);
+        img=cropImg;
     end
-%     top_diff=0;down_diff=0;left_diff=0;right_diff=0;
-%     if isfield(preprocess_param,'top_diff')
-%         top_diff=preprocess_param.top_diff;
-%     end
-%     if isfield(preprocess_param,'down_diff')
-%         down_diff=preprocess_param.down_diff;
-%     end
-%     if isfield(preprocess_param,'left_diff')
-%         left_diff=preprocess_param.left_diff;
-%     end
-%     if isfield(preprocess_param,'right_diff')
-%         right_diff=preprocess_param.right_diff;
-%     end
-    final_size=int32(max(width,height)*padding_factor);
-    data=uint8(ones(final_size,final_size,3)*255);
-    data(int32((final_size-height)/2)+1:int32((final_size-height)/2)+height,...
-        int32((final_size-width)/2)+1:int32((final_size-width)/2)+width,:)= ...
-        img(1:end,1:end,:);
 end
-if exist('data','var')
-    img=data;
+
+if ~isfield(preprocess_param,'do_alignment') && isfield(preprocess_param,'is_square') ...
+        && preprocess_param.is_square
+        %just put the image in the center of the aligned image
+        %padding_factor determines the size of the aligned image
+        height=size(img,1);
+        width=size(img,2);
+        padding_factor=1;
+        if isfield(preprocess_param,'padding_factor')
+            padding_factor=preprocess_param.padding_factor;
+        end
+        final_size=int32(max(width,height)*padding_factor);
+        data=uint8(ones(final_size,final_size,3)*255);
+        data(int32((final_size-height)/2)+1:int32((final_size-height)/2)+height,...
+            int32((final_size-width)/2)+1:int32((final_size-width)/2)+width,:)= ...
+            img(1:end,1:end,:);
+        img=data;
 end
 %fprintf('img %s\n',[img_dir filesep img_file]);
 if norm_type==2
@@ -61,11 +70,9 @@ else
             img=rgb2gray(img);
         end
     else
-        if size(img,3)==1
-            rgb_img(:,:,1)=img;
-            rgb_img(:,:,2)=img;
-            rgb_img(:,:,3)=img;
-            img=rgb_img;
+        if size(img,3)<3
+            img(:,:,2)=img(:,:,1);
+            img(:,:,3)=img(:,:,1);
         end
         img = img(:, :, [3, 2, 1]); % convert from RGB to BGR
     end
@@ -76,7 +83,6 @@ else
     else
         img = permute(img, [2, 1, 3]); % permute width and height
     end
-    
     
     if is_gray
         data = zeros(img_size(2),img_size(1),1,1);
@@ -115,4 +121,84 @@ else
     feature=net.blobs(feature_key).get_data();
 end
 
+end
+
+%lightcnn's code.
+function [res, eyec2, cropped, resize_scale] = align(img, f5pt, crop_size, ec_mc_y, ec_y)
+f5pt = double(f5pt);
+ang_tan = (f5pt(1,2)-f5pt(2,2))/(f5pt(1,1)-f5pt(2,1));
+ang = atan(ang_tan) / pi * 180;
+img_rot = imrotate(img, ang, 'bicubic');
+imgh = size(img,1);
+imgw = size(img,2);
+
+% eye center
+x = (f5pt(1,1)+f5pt(2,1))/2;
+y = (f5pt(1,2)+f5pt(2,2))/2;
+% x = ffp(1);
+% y = ffp(2);
+
+ang = -ang/180*pi;
+%{
+x0 = x - imgw/2;
+y0 = y - imgh/2;
+xx = x0*cos(ang) - y0*sin(ang) + size(img_rot,2)/2;
+yy = x0*sin(ang) + y0*cos(ang) + size(img_rot,1)/2;
+%}
+[xx, yy] = transform(x, y, ang, size(img), size(img_rot));
+eyec = round([xx yy]);
+x = (f5pt(4,1)+f5pt(5,1))/2;
+y = (f5pt(4,2)+f5pt(5,2))/2;
+[xx, yy] = transform(x, y, ang, size(img), size(img_rot));
+mouthc = round([xx yy]);
+
+resize_scale = ec_mc_y/(mouthc(2)-eyec(2));
+
+img_resize = imresize(img_rot, resize_scale);
+
+res = img_resize;
+%hujun why?
+eyec2 = (eyec - [size(img_rot,2)/2 size(img_rot,1)/2]) * resize_scale + [size(img_resize,2)/2 size(img_resize,1)/2];
+eyec2 = round(eyec2);
+img_crop = zeros(crop_size, crop_size, size(img_rot,3));
+% crop_y = eyec2(2) -floor(crop_size*1/3);
+crop_y = eyec2(2) - ec_y;
+crop_y_end = crop_y + crop_size - 1;
+crop_x = eyec2(1)-floor(crop_size/2);
+crop_x_end = crop_x + crop_size - 1;
+
+box = guard([crop_x crop_x_end crop_y crop_y_end], size(img_resize,2),size(img_resize,1));
+img_crop(box(3)-crop_y+1:box(4)-crop_y+1, box(1)-crop_x+1:box(2)-crop_x+1,:) = img_resize(box(3):box(4),box(1):box(2),:);
+
+% img_crop = img_rot(crop_y:crop_y+img_size-1,crop_x:crop_x+img_size-1);
+cropped = img_crop;
+end
+
+function r = guard(x, Nx,Ny)
+x(x<1)=1;
+if x(1)>Nx
+    x(1)=Nx;
+end
+if x(2)>Nx
+    x(2)=Nx;
+end
+if x(3)>Ny
+    x(3)=Ny;
+end
+if x(4)>Ny
+    x(4)=Ny;
+end
+r = x;
+end
+
+function [xx, yy] = transform(x, y, ang, s0, s1)
+% x,y position
+% ang angle
+% s0 size of original image
+% s1 size of target image
+
+x0 = x - s0(2)/2;
+y0 = y - s0(1)/2;
+xx = x0*cos(ang) - y0*sin(ang) + s1(2)/2;
+yy = x0*sin(ang) + y0*cos(ang) + s1(1)/2;
 end
