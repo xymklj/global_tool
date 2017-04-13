@@ -22,26 +22,46 @@ if isfield(preprocess_param,'do_alignment')
         cropImg = imtransform(img, Tfm, 'XData', [1 imgSize(2)],...
             'YData', [1 imgSize(1)], 'Size', imgSize);
         img=cropImg;
+    elseif strcmp(align_param.alignment_type,'bbox')
+
+        img_width=size(img,2);
+        img_height=size(img,1);
+        bbox=align_param.facial_point(11:14);
+        center=bbox(1:2)+bbox(3:4)/2;
+        width_height=bbox(3:4); %first element is width
+        square_size=int32(max(width_height));
+        width=square_size;height=square_size;
+        left_top=int32(center-single(square_size)/2);
+        %         r=rectangle('Position',[bbox(1,1:2) width_height],'Edgecolor','g','LineWidth',3);
+        left_top(left_top<1)=1;
+        if left_top(1)+square_size>img_width
+            width=img_width-left_top(1);
+        end
+        if left_top(2)+square_size>img_height
+            height=img_height-left_top(1);
+        end
+          img=img(left_top(2):left_top(2)+height,left_top(1):left_top(1)+width,:);
     end
 end
-
-if ~isfield(preprocess_param,'do_alignment') && isfield(preprocess_param,'is_square') ...
-        && preprocess_param.is_square
-        %just put the image in the center of the aligned image
-        %padding_factor determines the size of the aligned image
-        height=size(img,1);
-        width=size(img,2);
-        padding_factor=1;
-        if isfield(preprocess_param,'padding_factor')
-            padding_factor=preprocess_param.padding_factor;
-        end
-        final_size=int32(max(width,height)*padding_factor);
-        data=uint8(ones(final_size,final_size,3)*255);
-        data(int32((final_size-height)/2)+1:int32((final_size-height)/2)+height,...
-            int32((final_size-width)/2)+1:int32((final_size-width)/2)+width,:)= ...
-            img(1:end,1:end,:);
-        img=data;
-end
+% 
+% if ~isfield(preprocess_param,'do_alignment') && ~preprocess_param.do_alignment ...
+%         &&isfield(preprocess_param,'is_square') ...
+%         && preprocess_param.is_square
+%         %just put the image in the center of the aligned image
+%         %padding_factor determines the size of the aligned image
+%         height=size(img,1);
+%         width=size(img,2);
+%         padding_factor=1;
+%         if isfield(preprocess_param,'padding_factor')
+%             padding_factor=preprocess_param.padding_factor;
+%         end
+%         final_size=int32(max(width,height)*padding_factor);
+%         data=uint8(ones(final_size,final_size,3)*255);
+%         data(int32((final_size-height)/2)+1:int32((final_size-height)/2)+height,...
+%             int32((final_size-width)/2)+1:int32((final_size-width)/2)+width,:)= ...
+%             img(1:end,1:end,:);
+%         img=data;
+% end
 %fprintf('img %s\n',[img_dir filesep img_file]);
 if norm_type==2
     cropImg=imresize(img,img_size);
@@ -67,6 +87,7 @@ if norm_type==2
 else
     if is_gray
         if size(img,3)==3
+            img=uint8(img);
             img=rgb2gray(img);
         end
     else
@@ -122,6 +143,8 @@ else
 end
 
 end
+
+
 
 %lightcnn's code.
 function [res, eyec2, cropped, resize_scale] = align(img, f5pt, crop_size, ec_mc_y, ec_y)
