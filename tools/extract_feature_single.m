@@ -18,8 +18,10 @@ if isfield(preprocess_param,'do_alignment') && preprocess_param.do_alignment
     assert(logical(exist([img_dir filesep img_file(1:idx(end)) pts_postfix],'file')),'feature points should be provided and stored aside images');
     fid=fopen([img_dir filesep img_file(1:idx(end)) pts_postfix],'rt');
     facial_point=textscan(fid,'%f');
+    fclose(fid);
     facial_point=facial_point{1};
     preprocess_param.align_param.facial_point=facial_point;
+
 end
 feature=extract_feature_single_image(img,img_size,data_key,feature_key,net,preprocess_param,is_gray,norm_type,averageImg);
 end

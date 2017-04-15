@@ -5,13 +5,29 @@ function feature=extract_feature_single_image(img,img_size,data_key,feature_key,
 %
 assert(norm_type<=2,'norm_type should be less than 3 now');
 if isfield(preprocess_param,'do_alignment')
+    img_width=size(img,2);
+    img_height=size(img,1);
     assert(isfield(preprocess_param,'align_param'),'align_param should be provided\n');
     align_param=preprocess_param.align_param;
     if strcmp(align_param.alignment_type,'lightcnn')
         f5pt(1:5,1)=align_param.facial_point(1:2:9);
         f5pt(1:5,2)=align_param.facial_point(2:2:10);
         [img2, eyec, img_cropped, resize_scale] = align(img, f5pt, 128, 48, 48);
-        img=img_cropped;
+
+        % if doing alignment failed,we use 'bbox' method when bbox exists.
+        if resize_scale<0 || resize_scale>1&& length(align_param.facial_point)>10
+            
+            bbox=align_param.facial_point(11:14);
+            if isfield(align_param,'padding_factor')
+            [aligned_img]=bbox_alignment(img,bbox,align_param.padding_factor);
+            else 
+                [aligned_img]=bbox_alignment(img,bbox,1);
+            end
+            img=aligned_img;
+        else
+             img=img_cropped;
+        end
+  
     elseif strcmp(align_param.alignment_type,'eccv16')
         imgSize = [112, 96];
         coord5points = [30.2946, 65.5318, 48.0252, 33.5493, 62.7299; ...
@@ -23,27 +39,17 @@ if isfield(preprocess_param,'do_alignment')
             'YData', [1 imgSize(1)], 'Size', imgSize);
         img=cropImg;
     elseif strcmp(align_param.alignment_type,'bbox')
-
-        img_width=size(img,2);
-        img_height=size(img,1);
+        
         bbox=align_param.facial_point(11:14);
-        center=bbox(1:2)+bbox(3:4)/2;
-        width_height=bbox(3:4); %first element is width
-        square_size=int32(max(width_height));
-        width=square_size;height=square_size;
-        left_top=int32(center-single(square_size)/2);
-        %         r=rectangle('Position',[bbox(1,1:2) width_height],'Edgecolor','g','LineWidth',3);
-        left_top(left_top<1)=1;
-        if left_top(1)+square_size>img_width
-            width=img_width-left_top(1);
+        if isfield(align_param,'padding_factor')
+            [aligned_img]=bbox_alignment(img,bbox,align_param.padding_factor);
+        else
+            [aligned_img]=bbox_alignment(img,bbox,1);
         end
-        if left_top(2)+square_size>img_height
-            height=img_height-left_top(1);
-        end
-          img=img(left_top(2):left_top(2)+height,left_top(1):left_top(1)+width,:);
+        img=aligned_img;
     end
 end
-% 
+%
 % if ~isfield(preprocess_param,'do_alignment') && ~preprocess_param.do_alignment ...
 %         &&isfield(preprocess_param,'is_square') ...
 %         && preprocess_param.is_square
@@ -144,7 +150,30 @@ end
 
 end
 
+%bounding box alignment method
+function [aligned_img]=bbox_alignment(img,bbox,padding_factor)
 
+img_width=size(img,2);
+img_height=size(img,1);
+center=bbox(1:2)+bbox(3:4)/2;
+width_height=bbox(3:4); %first element is width
+square_size=int32(max(width_height)*padding_factor);
+width=square_size;height=square_size;
+left_top=int32(center-single(square_size)/2);
+%         r=rectangle('Position',[bbox(1,1:2) width_height],'Edgecolor','g','LineWidth',3);
+left_top(left_top<1)=1;
+if left_top(1)+square_size>img_width
+    width=img_width-left_top(1);
+end
+if left_top(2)+square_size>img_height
+    height=img_height-left_top(1);
+end
+assert(width>0,'bbox is wrong');
+assert(height>0,'bbox is wrong');
+
+aligned_img=img(left_top(2):left_top(2)+height,left_top(1):left_top(1)+width,:);
+
+end
 
 %lightcnn's code.
 function [res, eyec2, cropped, resize_scale] = align(img, f5pt, crop_size, ec_mc_y, ec_y)
@@ -176,7 +205,12 @@ y = (f5pt(4,2)+f5pt(5,2))/2;
 mouthc = round([xx yy]);
 
 resize_scale = ec_mc_y/(mouthc(2)-eyec(2));
-
+if resize_scale<0 || resize_scale>1
+    res=0;%no meaning
+    eyec2=0;%no meaning
+    cropped=zeros(crop_size,crop_size,size(img,3));
+    return;
+end
 img_resize = imresize(img_rot, resize_scale);
 
 res = img_resize;

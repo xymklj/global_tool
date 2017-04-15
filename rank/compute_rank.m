@@ -1,4 +1,4 @@
-function result_rankn=compute_rank(gallery_dir,probe_dir,gallery_txt,probe_txt,caffe_path,prototxt,caffemodel,net_param,preprocess_param,rank_n)
+function [result_rankn,analysis]=compute_rank(gallery_dir,probe_dir,gallery_txt,probe_txt,caffe_path,prototxt,caffemodel,net_param,preprocess_param,rank_param)
 %compute the rank 1-n for cnn
 %
 %inputs:
@@ -11,11 +11,17 @@ function result_rankn=compute_rank(gallery_dir,probe_dir,gallery_txt,probe_txt,c
 %
 %  net_param and preprocess_param     --see net_param_preprocess_param_doc.txt in root directory. 
 %
-%  rank_n                   -- to calculate rank 1-n
-
+%  rank_param.rank_n                   -- to calculate rank 1-n
+%  rank_param.distance_type            -- candidate is 'cos'(cosine similarity)
+%                           'L2'(l2 distance)
 %output:
-%      			    --the rank 1-n cumulative scores
+%     result_rankn 			    --the rank 1-n cumulative scores
 %
+%     analysis.distance_matrix --x-axes:gallery y-axes:probe
+%                (x,y)=similarity of gallery(x) and probe(y)
+%     analysis.sort_matrix     --
+%     analysis.gallery_info    --
+%     analysis.gallery_info    --
 %Jun Hu
 %2017-3
 
@@ -46,13 +52,13 @@ for i_g=1:length(gallery)
 end
 for i_p=1:length(probe)
     fprintf('extract faeture i_p:%d\n',i_p);
-    feature=extract_feature_single(probe_dir,probe(i_p).name,data_size,data_key,feature_key,net,preprocess_param,is_gray,norm_type,averageImg);
+     feature=extract_feature_single(probe_dir,probe(i_p).name,data_size,data_key,feature_key,net,preprocess_param,is_gray,norm_type,averageImg);
     probe(i_p).fea=feature;
     %probe(i_p).img=imread([probe_dir filesep probe(i_p).name]);
 end
 %compute rank
-result_rankn=compute_rank_single(gallery,probe,rank_n);
-% fprintf('rank1: %f\n',rankn(1));
+[result_rankn,analysis]=compute_rank_single(gallery,probe,rank_param);
+%fprintf('rank1: %f\n',rankn(1));
 caffe.reset_all();
 end
 

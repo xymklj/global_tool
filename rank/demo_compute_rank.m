@@ -1,5 +1,5 @@
 clear;
-addpath(genpath('..'));
+addpath(genpath('/home/scw4750/github/global_tool'));
 
 caffe_path='/home/scw4750/github/caffe/matlab';
 rank_n=50;
@@ -13,6 +13,9 @@ data_size=[128 128];
 is_transpose=true;
 norm_type=0;  %type=0 indicates that the data is just divided by 255
 averageImg=[0 0 0];
+preprocess_param.do_alignment=true;
+preprocess_param.align_param.alignment_type='lightcnn';
+distance_type='cos';
 
 % %for vgg
 % prototxt='/home/scw4750/github/vgg_face_caffe/VGG_FACE_deploy.prototxt';
@@ -24,6 +27,9 @@ averageImg=[0 0 0];
 % is_transpose=true;
 % norm_type=1;
 % averageImg=[129.1863,104.7624,93.5940] ;
+% preprocess_param.do_alignment=true;
+% preprocess_param.align_param.alignment_type='bbox';
+% distance_type='cos';
 
 % %for face-caffe
 % prototxt='/home/scw4750/github/eccv_deep_face/face_example/face_deploy.prototxt';
@@ -35,6 +41,9 @@ averageImg=[0 0 0];
 % is_transpose=true;
 % norm_type=2;
 % averageImg=[0 0 0];
+% preprocess_param.do_alignment=true;
+% preprocess_param.align_param.alignment_type='eccv16';
+% distance_type='cos';
 
 net_param.data_size=data_size;
 net_param.data_key=data_key;
@@ -42,23 +51,46 @@ net_param.feature_key=feature_key;
 net_param.is_gray=is_gray;
 net_param.norm_type=norm_type;
 net_param.averageImg=averageImg;
+%preprocess_param
+% preprocess_param.is_square=true;
 
-preprocess_param.do_alignment=true;
-align_param.alignment_type='lightcnn';
-preprocess_param.align_param=align_param;
+rank_param.distance_type='cos';
+rank_param.rank_n=rank_n;
 
-gallery_txt='/home/scw4750/github/IJCB2017/liangjie/txt/baseline_gallery_list.txt';
+probe_dir='/home/scw4750/github/IJCB2017/liangjie/alignment/multipie/global_probe';
 probe_txt='/home/scw4750/github/IJCB2017/liangjie/txt/probe_list.txt';
 
-gallery_dir='/home/scw4750/github/IJCB2017/liangjie/croped/test_alignment/gallery';
-probe_dir='/home/scw4750/github/IJCB2017/liangjie/croped/test_alignment/probe';
 
-baseline_gallery_txt=gallery_txt;
-% %for baseline dataset without alignment
-% gallery_dir='/home/scw4750/github/IJCB2017/liangjie/croped/without_pts/baseline_mulitpie/gallery';
-% %for face alignment data
-result_rankn = compute_rank(gallery_dir,probe_dir,baseline_gallery_txt,probe_txt,caffe_path,prototxt,caffemodel, ...
-    net_param,preprocess_param,rank_n);
-cmc(1).name='baseline_mulitpie';
-cmc(1).rankn=result_rankn;
+gallery_root_dir='/home/scw4750/github/IJCB2017/liangjie/alignment/multipie';
+gallery_dir_name={'enlarge_mulitpie' 'enlarge_multipie_han'};
+gallery_txt='/home/scw4750/github/IJCB2017/liangjie/txt/gallery_list.txt';
+cmc_count=1;
+for i=1:length(gallery_dir_name)
+    [result_rankn,analysis] = compute_rank([gallery_root_dir filesep gallery_dir_name{i} '/gallery/'],probe_dir,...
+        gallery_txt,probe_txt,caffe_path,prototxt,caffemodel, ...
+    net_param,preprocess_param,rank_param);
+cmc(cmc_count).name=[gallery_root_dir filesep gallery_dir_name{i} '/gallery/'];
+cmc(cmc_count).rankn=result_rankn;
+cmc(cmc_count).analysis=analysis;
+cmc_count=cmc_count+1;
+end
 
+% for baseline with two images
+baseline_gallery_txt='/home/scw4750/github/IJCB2017/liangjie/txt/baseline_gallery_list.txt';
+gallery_dir='/home/scw4750/github/IJCB2017/liangjie/alignment/multipie/baseline_mulitpie/gallery';
+[result_rankn,analysis] = compute_rank(gallery_dir,probe_dir,baseline_gallery_txt,probe_txt,caffe_path,prototxt,caffemodel, ...
+    net_param,preprocess_param,rank_param);
+cmc(cmc_count).name=gallery_dir;
+cmc(cmc_count).rankn=result_rankn;
+cmc(cmc_count).analysis=analysis;
+cmc_count=cmc_count+1;
+
+%for baseline with one image
+baseline_gallery_txt='/home/scw4750/github/IJCB2017/liangjie/alignment/multipie/baseline_mulitpie_only_one/list.txt';
+gallery_dir='/home/scw4750/github/IJCB2017/liangjie/alignment/multipie/baseline_mulitpie_only_one/gallery';
+[result_rankn,analysis] = compute_rank(gallery_dir,probe_dir,baseline_gallery_txt,probe_txt,caffe_path,prototxt,caffemodel, ...
+    net_param,preprocess_param,rank_param);
+cmc(cmc_count).name=gallery_dir;
+cmc(cmc_count).rankn=result_rankn;
+cmc(cmc_count).analysis=analysis;
+cmc_count=cmc_count+1;
