@@ -7,7 +7,7 @@ function analysis=get_analysis_matrix(gallery,probe,matrix_param)
 %  matrix_param.distance_type --'cos' 'L2'
 %output:
 %  analysis
-%notices:
+%
 %
 %Jun Hu
 %2017-3
