@@ -4,7 +4,7 @@ function feature=extract_feature_single_image(img,img_size,data_key,feature_key,
 %        the input is not the same: one is image,and anthor is the location of the image in disk
 %
 assert(norm_type<=2,'norm_type should be less than 3 now');
-if isfield(preprocess_param,'do_alignment')
+if isfield(preprocess_param,'do_alignment') && preprocess_param.do_alignment
     img_width=size(img,2);
     img_height=size(img,1);
     assert(isfield(preprocess_param,'align_param'),'align_param should be provided\n');
@@ -49,25 +49,23 @@ if isfield(preprocess_param,'do_alignment')
         img=aligned_img;
     end
 end
-%
-% if ~isfield(preprocess_param,'do_alignment') && ~preprocess_param.do_alignment ...
-%         &&isfield(preprocess_param,'is_square') ...
-%         && preprocess_param.is_square
-%         %just put the image in the center of the aligned image
-%         %padding_factor determines the size of the aligned image
-%         height=size(img,1);
-%         width=size(img,2);
-%         padding_factor=1;
-%         if isfield(preprocess_param,'padding_factor')
-%             padding_factor=preprocess_param.padding_factor;
-%         end
-%         final_size=int32(max(width,height)*padding_factor);
-%         data=uint8(ones(final_size,final_size,3)*255);
-%         data(int32((final_size-height)/2)+1:int32((final_size-height)/2)+height,...
-%             int32((final_size-width)/2)+1:int32((final_size-width)/2)+width,:)= ...
-%             img(1:end,1:end,:);
-%         img=data;
-% end
+
+ if ~isfield(preprocess_param,'do_alignment') || ~preprocess_param.do_alignment ...
+         %just put the image in the center of the aligned image
+         %padding_factor determines the size of the aligned image
+         height=size(img,1);
+         width=size(img,2);
+         padding_factor=1;
+         if isfield(preprocess_param,'padding_factor')
+             padding_factor=preprocess_param.padding_factor;
+         end
+         final_size=int32(max(width,height)*padding_factor);
+         data=uint8(ones(final_size,final_size,3)*255);
+         data(int32((final_size-height)/2)+1:int32((final_size-height)/2)+height,...
+             int32((final_size-width)/2)+1:int32((final_size-width)/2)+width,:)= ...
+             img(1:end,1:end,:);
+         img=data;
+ end
 %fprintf('img %s\n',[img_dir filesep img_file]);
 if norm_type==2
     cropImg=imresize(img,img_size);
@@ -166,7 +164,7 @@ if left_top(1)+square_size>img_width
     width=img_width-left_top(1);
 end
 if left_top(2)+square_size>img_height
-    height=img_height-left_top(1);
+    height=img_height-left_top(2);
 end
 assert(width>0,'bbox is wrong');
 assert(height>0,'bbox is wrong');
