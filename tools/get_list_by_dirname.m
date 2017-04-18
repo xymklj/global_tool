@@ -1,4 +1,4 @@
-function get_list_by_dirname(img_dir,txt_name,file_filter)
+function get_list_by_dirname(img_dir,txt_name,file_filter,out_format)
 %get list by directory name just for the directory such as  class_number/the_images_for_the_class
 %input:
 %  img_dir    --the root dir for all image  
@@ -17,7 +17,7 @@ for i=1:length(img_struct)
     sub_img_struct=dir([img_dir filesep img_struct(i).name filesep file_filter]);
     for i_s=1:length(sub_img_struct)
         img_name=[img_struct(i).name filesep sub_img_struct(i_s).name];
-        fprintf(fid,'%s %d\n',img_name,class);
+        fprintf(fid,'%s %d\n',[img_name(1:end-3) out_format],class);
     end
 end
 fclose(fid);

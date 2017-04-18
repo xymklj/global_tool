@@ -11,8 +11,10 @@ function analysis=get_analysis_matrix(gallery,probe,matrix_param)
 %
 %Jun Hu
 %2017-3
-
-distance_type=matrix_param.distance_type;
+distance_type='cos';
+if isfield(matrix_param,'distance_type')
+    distance_type=matrix_param.distance_type;
+end
 for i_p=1:length(probe)
     fprintf('get_analysis matrix i_p:%d\n',i_p);
     for i_g=1:length(gallery)

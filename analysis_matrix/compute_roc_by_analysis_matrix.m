@@ -30,16 +30,16 @@ if nargin>=3
     [ori,pair,label]=get_ori_pair_label_from_txt(pos_txt);
     for i_o=1:length(ori)
         gal_index=get_index_by_name(gallery,ori{i_o});
-        pro_index=get_index_by_name(gallery,pair{i_o});
-        pos_pair(i_o)=distance_matrix(gal_index,pro_index);
+        pro_index=get_index_by_name(probe,pair{i_o});
+        pos_pair(i_o)=distance_matrix(pro_index,gal_index);
     end
     pos_label=ones(1,length(pos_pair));
     
     [ori,pair,label]=get_ori_pair_label_from_txt(neg_txt);
     for i_o=1:length(ori)
         gal_index=get_index_by_name(gallery,ori{i_o});
-        pro_index=get_index_by_name(gallery,pair{i_o});
-        neg_pair(i_o)=distance_matrix(gal_index,pro_index);
+        pro_index=get_index_by_name(probe,pair{i_o});
+        neg_pair(i_o)=distance_matrix(pro_index,gal_index);
     end
     neg_label=zeros(1,length(neg_pair));
     scores=[pos_pair neg_pair];

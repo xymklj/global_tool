@@ -29,27 +29,46 @@ if isfield(preprocess_param,'do_alignment') && preprocess_param.do_alignment
         end
   
     elseif strcmp(align_param.alignment_type,'eccv16')
-        imgSize = [112, 96];
+%         imgSize = [112, 96];
+imgSize=[224 224];
         coord5points = [30.2946, 65.5318, 48.0252, 33.5493, 62.7299; ...
             51.6963, 51.5014, 71.7366, 92.3655, 92.2041];
+%         coord5points = [66, 116, 81, 73, 105; ...
+%             117, 116, 149, 169, 169];      
+%         coord5points=coord5points*1.8; 
+%         coord5points(1,:)=coord5points(1,:)-40;
+%         coord5points(2,:)=coord5points(2,:)-150;
+        
         facial5points(1,1:5)=align_param.facial_point(1:2:9);
         facial5points(2,1:5)=align_param.facial_point(2:2:10);
         Tfm =  cp2tform(facial5points', coord5points', 'similarity');
         cropImg = imtransform(img, Tfm, 'XData', [1 imgSize(2)],...
             'YData', [1 imgSize(1)], 'Size', imgSize);
+%         cropImg = imtransform(img, Tfm, 'XData', [1 imgSize(2)],...
+%             'YData', [1 imgSize(1)], 'Size', imgSize,'FillValues',0);
+
         img=cropImg;
     elseif strcmp(align_param.alignment_type,'bbox')
         
-        bbox=align_param.facial_point(11:14);
-        if isfield(align_param,'padding_factor')
-            [aligned_img]=bbox_alignment(img,bbox,align_param.padding_factor);
-        else
-            [aligned_img]=bbox_alignment(img,bbox,1);
-        end
-        img=aligned_img;
+%         bbox=align_param.facial_point(11:14);
+%         
+%         
+%         if isfield(align_param,'padding_factor')
+%             [aligned_img]=bbox_alignment(img,bbox,align_param.padding_factor);
+%         else
+%             [aligned_img]=bbox_alignment(img,bbox,1);
+%         end
+%         img=aligned_img;
+        %
+        xa=max(align_param.facial_point(1:2:9));
+        ya=max(align_param.facial_point(2:2:10));
+        xi=min(align_param.facial_point(1:2:9));
+        yi=min(align_param.facial_point(2:2:10));
+        img=img(int32(yi*0.93):int32(ya*1.1),int32(xi*0.85):int32(xa*1.1),:);
+        
     end
 end
-
+% 66 117    116 116    81 149     73 169     108 169
  if ~isfield(preprocess_param,'do_alignment') || ~preprocess_param.do_alignment ...
          %just put the image in the center of the aligned image
          %padding_factor determines the size of the aligned image

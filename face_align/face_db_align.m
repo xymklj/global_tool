@@ -83,7 +83,7 @@ end
 
 function res = read_5pt(fn)
 fid = fopen(fn, 'r');
-raw = textscan(fid, '%f;%f;');
+raw = textscan(fid, '%f %f');
 fclose(fid);
 res = [raw{1} raw{2}];
 % fid = fopen(fn, 'r');

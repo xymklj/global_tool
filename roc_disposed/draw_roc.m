@@ -15,7 +15,7 @@ function [scores,labels]=draw_roc(pos_ori_dir,pos_pair_dir,neg_ori_dir,neg_pair_
 %  net_param and preprocess_param     --see net_param_preprocess_param_doc.txt in root directory.
 %
 %output:
-%      			                       --the postive and negative pair with its feature and
+%      			              --the postive and negative pair with its feature and
 %      			    score
 %
 %Jun Hu
