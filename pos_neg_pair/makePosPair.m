@@ -1,52 +1,52 @@
-function posPair=makePosPair(ori_txt,pair_txt,max_num,is_shuffle,output_txt)
-%to build negtive pair by randomly choose the images in ori_txt and
-%       pair_txt.The particular ratio of some specal class to some other
-%       class is determined by the number of them in ori_txt and pair_txt.
+function posPair=makePosPair(gal_txt,pro_txt,max_num,is_shuffle,output_txt)
+%to build negtive pro by randomly choose the images in gal_txt and
+%       pro_txt.The particular ratio of some specal class to some other
+%       class is determined by the number of them in gal_txt and pro_txt.
 %input:
-%  ori_txt         --the gallery file that contains image name and its label 
-%  pair_txt        --the probe file that contains image name and its label
-%  max_num         --the max number of the final positive pair;
-%  is_shuflle      --randomly permute the positive pair
+%  gal_txt         --the gallery file that contains image name and its label 
+%  pro_txt        --the probe file that contains image name and its label
+%  max_num         --the max number of the final positive pro;
+%  is_shuflle      --randomly permute the positive pro
 %  output_txt      --if this parameter exists, this function writes postive
-%                    pair to txt.
+%                    pro to txt.
 %
 %output:
-%  posPair         --positive pair txt
+%  posPair         --positive pro txt
 %Jun Hu
 %2017-3
-fid=fopen(ori_txt,'rt');
-ori=textscan(fid,'%s %d');
-ori_name=ori{1};
-ori_label=ori{2};
-assert(length(ori_name)==length(ori_label));
+fid=fopen(gal_txt,'rt');
+gal=textscan(fid,'%s %d');
+gal_name=gal{1};
+gal_label=gal{2};
+assert(length(gal_name)==length(gal_label));
 fclose(fid);
-fid=fopen(pair_txt,'rt');
-pair=textscan(fid,'%s %d');
-pair_name=pair{1};
-pair_label=pair{2};
-assert(length(pair_name)==length(pair_label));
+fid=fopen(pro_txt,'rt');
+pro=textscan(fid,'%s %d');
+pro_name=pro{1};
+pro_label=pro{2};
+assert(length(pro_name)==length(pro_label));
 fclose(fid);
-total_pos_pair=0;
-for i_o=1:length(ori_label)
-    for i_p=1:length(pair_label)
-        if ori_label(i_o)==pair_label(i_p)
-            total_pos_pair=total_pos_pair+1;
+total_pos_pro=0;
+for i_o=1:length(gal_label)
+    for i_p=1:length(pro_label)
+        if gal_label(i_o)==pro_label(i_p)
+            total_pos_pro=total_pos_pro+1;
         end
     end
 end
-rand_thre=single(max_num)/total_pos_pair;
-pos_pair_count=1;
-for i_o=1:length(ori_label)
-    for i_p=1:length(pair_label)
-        if ori_label(i_o)==pair_label(i_p)
+rand_thre=single(max_num)/total_pos_pro;
+pos_pro_count=1;
+for i_o=1:length(gal_label)
+    for i_p=1:length(pro_label)
+        if gal_label(i_o)==pro_label(i_p)
             if rand()<rand_thre
-                posPair(pos_pair_count).ori_name=ori_name{i_o};
-                posPair(pos_pair_count).pair_name=pair_name{i_p};
-                posPair(pos_pair_count).label=1;
-                if pos_pair_count>= max_num
+                posPair(pos_pro_count).gal_name=gal_name{i_o};
+                posPair(pos_pro_count).pro_name=pro_name{i_p};
+                posPair(pos_pro_count).label=1;
+                if pos_pro_count>= max_num
                     break; % we can acclerate by set a stop flag
                 end
-                pos_pair_count=pos_pair_count+1;
+                pos_pro_count=pos_pro_count+1;
             end
         end
     end
@@ -58,7 +58,7 @@ end
 if nargin>4
     fid=fopen(output_txt,'wt');
     for i=1:length(posPair)
-        fprintf(fid,'%s %s %d\n',posPair(i).ori_name,posPair(i).pair_name,posPair(i).label);
+        fprintf(fid,'%s %s %d\n',posPair(i).gal_name,posPair(i).pro_name,posPair(i).label);
     end
     fclose(fid);
 end

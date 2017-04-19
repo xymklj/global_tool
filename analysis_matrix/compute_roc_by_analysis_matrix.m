@@ -1,4 +1,4 @@
-function [scores,labels]=compute_roc_analysis_matrix(analysis,pos_txt,neg_txt)
+function [scores,labels]=compute_roc_by_analysis_matrix(analysis,merged_txt,neg_txt)
 % notices:
 %   if there are three parameters, then
 %       second parameter should be positive pair txt
@@ -10,7 +10,7 @@ function [scores,labels]=compute_roc_analysis_matrix(analysis,pos_txt,neg_txt)
 %
 %input:
 %  analysis           -- analysis matrix named by Jun Hu
-%  pos_txt            --the txt contains origin name and pair name and 1
+%  merged_txt         --if there are three parameters, the txt should be postive pair txt. if there are two parameters,the txt should be mreged pair txt;
 %  neg_txt            --the txt contains origin name and pair name and 0
 %               notices: the name should be the same as it stored in
 %                 analysis matrix
@@ -45,15 +45,15 @@ if nargin>=3
     scores=[pos_pair neg_pair];
     labels=[pos_label neg_label];
 else
+    pos_txt=merged_txt;
     gallery=analysis.gallery_info;
     probe=analysis.probe_info;
-    distance_matrix=analysis.distance_matrix;
     
     [ori,pair,label]=get_ori_pair_label_from_txt(pos_txt);
     for i_o=1:length(ori)
         gal_index=get_index_by_name(gallery,ori{i_o});
-        pro_index=get_index_by_name(gallery,pair{i_o});
-        scores(i_o)=distance_matrix(gal_index,pro_index);
+        pro_index=get_index_by_name(probe,pair{i_o});
+        scores(i_o)=distance_matrix(pro_index,gal_index);
         labels(i_o)=label(i_o);
     end
 end
