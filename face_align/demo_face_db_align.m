@@ -20,12 +20,12 @@ clear;
 %         3. the images should be stored as  root_dir/class/image
 %Jun Hu
 %2017-4
-face_dir='/home/scw4750/github/IJCB2017/liufeng/with_3d/probe/still';
+face_dir='/home/scw4750/github/IJCB2017/liufeng/evaluation_v2/with_3d/probe/still';
 ffp_dir=face_dir;
 ec_mc_y=48;
 ec_y=48;
-img_size=128;
-save_dir='/home/scw4750/github/IJCB2017/liufeng/with_3d/probe_lightcnn_alignment';
+img_size=144;
+save_dir='/home/scw4750/github/IJCB2017/liufeng/train/lightcnn/train_test_data/probe/still';
 % save_dir='/home/scw4750/github/IJCB2017/liangjie/croped/with_pts/enlarge_mulitpie_croped_by_liang_with_pts/gallery';
 pts_format='5pt';
 output_format='jpg';

@@ -12,7 +12,7 @@ if isfield(preprocess_param,'do_alignment') && preprocess_param.do_alignment
     if strcmp(align_param.alignment_type,'lightcnn')
         f5pt(1:5,1)=align_param.facial_point(1:2:9);
         f5pt(1:5,2)=align_param.facial_point(2:2:10);
-        [img2, eyec, img_cropped, resize_scale] = align(img, f5pt, 128, 48, 48);
+        [img2, eyec, img_cropped, resize_scale] = align(img, f5pt, 128, 48, 40);
 
         % if doing alignment failed,we use 'bbox' method when bbox exists.
         if resize_scale<0 || resize_scale>1&& length(align_param.facial_point)>10
