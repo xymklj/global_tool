@@ -21,7 +21,7 @@ if is_shuffle
 end
 if nargin>5
     fid=fopen(output_txt,'wt');
-    for i=1:length(negPair)
+    for i=1:length(mergedPair)
         fprintf(fid,'%s %s %d\n',mergedPair(i).gal_name,mergedPair(i).pro_name,mergedPair(i).label);
     end
     fclose(fid);

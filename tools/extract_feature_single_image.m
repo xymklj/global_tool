@@ -66,6 +66,7 @@ end
  if ~isfield(preprocess_param,'do_alignment') || ~preprocess_param.do_alignment ...
          %just put the image in the center of the aligned image
          %padding_factor determines the size of the aligned image
+         %img=img(1:end,35:end-35,:);
          height=size(img,1);
          width=size(img,2);
          padding_factor=1;
