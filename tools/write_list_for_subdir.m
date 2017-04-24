@@ -37,12 +37,14 @@ for i=1:length(img_struct)
             label=name_handle(name);
         end
         if isfield(param,'out_format')
-            output_name=[output_name(1:end-length(filter)+2) out_format];
+            output_name=[output_name(1:end-length(filter)+2) param.out_format];
         end
         if isfield(param,'is_fullpath')
             output_name=[img_struct(i).name filesep output_name];
         end
-        fprintf(fid,'%s %d\n',output_name,label);
+        if label~=Inf
+            fprintf(fid,'%s %d\n',output_name,label);
+        end
     end
 end
 fclose(fid);

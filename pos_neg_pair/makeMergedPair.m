@@ -1,4 +1,4 @@
-function mergedPair=makeMergedPair(gal_txt,pro_txt,pos_max_num,neg_max_num,is_shuffle,output_txt)
+function mergedPair=makeMergedPair(output_txt,gal_txt,pro_txt,pos_max_num,neg_max_num,is_shuffle)
 %make merged postive and negative pro together
 %input:
 %  gal_txt         --the gallery file that contains image name and its label 

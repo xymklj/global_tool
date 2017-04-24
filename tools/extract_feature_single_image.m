@@ -15,7 +15,7 @@ if isfield(preprocess_param,'do_alignment') && preprocess_param.do_alignment
         [img2, eyec, img_cropped, resize_scale] = align(img, f5pt, 128, 48, 40);
 
         % if doing alignment failed,we use 'bbox' method when bbox exists.
-        if resize_scale<0 || resize_scale>1&& length(align_param.facial_point)>10
+        if resize_scale<0 || resize_scale>100&& length(align_param.facial_point)>10
             
             bbox=align_param.facial_point(11:14);
             if isfield(align_param,'padding_factor')
@@ -217,7 +217,7 @@ y = (f5pt(4,2)+f5pt(5,2))/2;
 mouthc = round([xx yy]);
 
 resize_scale = ec_mc_y/(mouthc(2)-eyec(2));
-if resize_scale<0 || resize_scale>1
+if resize_scale<0 || resize_scale>100
     res=0;%no meaning
     eyec2=0;%no meaning
     cropped=zeros(crop_size,crop_size,size(img,3));

@@ -35,14 +35,12 @@ for i=1: length(subdir)
             crop_y = floor((imgh - crop_size)/2);
             crop_x = floor((imgw - crop_size)/2);
             img_cropped = img(crop_y:crop_y+crop_size-1, crop_x:crop_x+crop_size-1,:);
-            eyec = [1 1];
-            %             fprintf(log_fid, '%s nonexists, cropped center\n', ffp_fn);
         else
-            disp(ffp_fn);
+%             disp(ffp_fn);
             f5pt = read_5pt(ffp_fn);
             [img2, eyec, img_cropped, resize_scale] = align(img, f5pt, crop_size, ec_mc_y, ec_y);
         end
-%         
+
 %         figure(1);
 %         subplot(1,3,1);
 %         imshow(img);

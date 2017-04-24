@@ -1,4 +1,4 @@
-function write_list_for_dir(img_dir,txt_name,filter,param)
+function write_list_for_dir(txt_name,img_dir,filter,param)
 %To get list for the directory as images, the output is a txt
 %   which containing lines with name and label
 %input:
@@ -28,9 +28,11 @@ for i_s=1:length(img_struct)
         label=param.name_handle(output_name);
     end
     if isfield(param,'out_format')
-        output_name=[output_name(1:end-length(filter)+2) out_format];
+        output_name=[output_name(1:end-length(filter)+2) param.out_format];
     end
-    fprintf(fid,'%s %d\n',output_name,label);
+    if label~=Inf
+        fprintf(fid,'%s %d\n',output_name,label);
+    end
 end
 
 fclose(fid);
