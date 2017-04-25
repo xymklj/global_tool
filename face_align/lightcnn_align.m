@@ -1,4 +1,4 @@
-function res = face_db_align(face_dir, ffp_dir, ec_mc_y, ec_y, img_size, save_dir,file_filter,output_format,pts_format)
+function res = face_db_align(face_dir, ffp_dir, ec_mc_y, ec_y, img_size, save_dir,file_filter,output_format,pts_format,is_continue)
 
 % center of eyes (ec), center of l&r mouth(mc), rotate and resize
 % ec_mc_y: y_mc-y_ec, diff of height of ec & mc, to scale the image.
@@ -27,20 +27,20 @@ for i=1: length(subdir)
     for k=1: length(img_fns)
         img = imread([face_dir filesep subdir(i).name filesep img_fns(k).name]);
         ffp_fn = [ffp_dir filesep subdir(i).name filesep img_fns(k).name(1:end-3) pts_format];
-        if exist(ffp_fn, 'file') == 0
-            img2 = img;
-            fprintf('%s NOT exists.\n', ffp_fn);
-            imgh = size(img,1);
-            imgw = size(img,2);
-            crop_y = floor((imgh - crop_size)/2);
-            crop_x = floor((imgw - crop_size)/2);
-            img_cropped = img(crop_y:crop_y+crop_size-1, crop_x:crop_x+crop_size-1,:);
-        else
-%             disp(ffp_fn);
-            f5pt = read_5pt(ffp_fn);
-            [img2, eyec, img_cropped, resize_scale] = align(img, f5pt, crop_size, ec_mc_y, ec_y);
+        if is_continue
+            if ~exist(ffp_fn, 'file')
+                continue;
+            end
         end
-
+        assert(logical(exist(ffp_fn, 'file')),'landmarks should be provided\n');
+        % disp(ffp_fn);
+        f5pt = read_5pt(ffp_fn);
+        [img2, eyec, img_cropped, resize_scale] = align(img, f5pt, crop_size, ec_mc_y, ec_y);
+        if resize_scale<0 || resize_scale>100
+            if is_continue
+                continue;
+            end
+        end
 %         figure(1);
 %         subplot(1,3,1);
 %         imshow(img);
@@ -121,8 +121,15 @@ y = (f5pt(4,2)+f5pt(5,2))/2;
 mouthc = round([xx yy]);
 
 resize_scale = ec_mc_y/(mouthc(2)-eyec(2));
+if resize_scale<0 || resize_scale>100
+    res=0;%no meaning
+    eyec2=0;%no meaning
+    cropped=zeros(crop_size,crop_size,size(img,3));
+    return;
+end
 
 img_resize = imresize(img_rot, resize_scale);
+
 
 res = img_resize;
 %hujun why?

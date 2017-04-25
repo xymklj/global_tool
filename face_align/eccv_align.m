@@ -1,4 +1,4 @@
-function eccv_align(face_dir,ffp_dir,save_dir,file_filter,output_format,pts_format)
+function eccv_align(face_dir,ffp_dir,save_dir,file_filter,output_format,pts_format,is_continue)
 
 imgSize = [112, 96];
 
@@ -19,6 +19,11 @@ for i=1: length(subdir)
     for k=1: length(img_fns)
         img = imread([face_dir filesep subdir(i).name filesep img_fns(k).name]);
         ffp_fn = [ffp_dir filesep subdir(i).name filesep img_fns(k).name(1:end-3) pts_format];
+        if is_continue
+            if ~exist(ffp_fn, 'file')
+                continue;
+            end
+        end
         assert(logical(exist(ffp_fn, 'file')),'landmarks should be provided\n');
         fid=fopen(ffp_fn,'rt');
         facial_point=textscan(fid,'%f');
