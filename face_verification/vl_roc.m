@@ -144,6 +144,7 @@ if nargout > 2 || nargout == 0
   % possible that neither of the two cases realizes (then EER=NaN).
 
   info.eer = NaN ;
+  info.tpr01=NaN;
   info.tpr001 = NaN ;
   info.tpr0001 = NaN ;
   info.tpr00001 = NaN ;
@@ -161,6 +162,14 @@ if nargout > 2 || nargout == 0
       info.eer = 1 - tnr(s) ;
     end
   end
+  
+ % calc tpr @ fpr==0.01(tnr==0.99)
+  s = max(find(tnr >= 0.9)) ;
+  if s == length(tpr)
+      info.tpr01 = NaN ;
+  else
+      info.tpr01 = tpr(s);
+  end  
   
   % calc tpr @ fpr==0.01(tnr==0.99)
   s = max(find(tnr >= 0.99)) ;

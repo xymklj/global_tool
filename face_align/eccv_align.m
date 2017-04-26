@@ -25,6 +25,17 @@ for i=1: length(subdir)
             end
         end
         assert(logical(exist(ffp_fn, 'file')),'landmarks should be provided\n');
+        img_cropped=eccv_align_base(ffp_fn,img);
+
+        save_fn = [save_dir filesep subdir(i).name filesep img_fns(k).name(1:end-3) output_format];
+        imwrite(img_cropped, save_fn);
+    end
+end
+        
+end
+     
+function img_cropped=eccv_align_base(ffp_fn,img)  
+
         fid=fopen(ffp_fn,'rt');
         facial_point=textscan(fid,'%f');
         facial_point=facial_point{1};
@@ -38,10 +49,4 @@ for i=1: length(subdir)
         img_cropped = imtransform(img, Tfm, 'XData', [1 imgSize(2)],...
             'YData', [1 imgSize(1)], 'Size', imgSize);
 
-        save_fn = [save_dir filesep subdir(i).name filesep img_fns(k).name(1:end-3) output_format];
-        imwrite(img_cropped, save_fn);
-    end
 end
-        
-end
-        

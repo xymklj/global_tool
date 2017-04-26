@@ -29,6 +29,11 @@ for i=1: length(subdir)
         fid=fopen(ffp_fn,'rt');
         facial_point=textscan(fid,'%f');
         facial_point=facial_point{1};
+        if is_continue
+            if length(facial_point)<14
+                continue;
+            end
+        end
         assert(length(facial_point)>=14,'bbox should be provide\n');
         fclose(fid);
         
