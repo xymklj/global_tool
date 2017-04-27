@@ -36,7 +36,7 @@ for i_o=1:length(gal_label)
         end
     end
 end
-rand_thre=single(max_num)/total_neg_pro;
+rand_thre=single(max_num+50)/total_neg_pro;
 neg_pro_count=1;
 for i_o=1:length(gal_label)
     for i_p=1:length(pro_label)

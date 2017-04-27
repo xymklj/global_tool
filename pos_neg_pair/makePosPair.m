@@ -34,7 +34,7 @@ for i_o=1:length(gal_label)
         end
     end
 end
-rand_thre=single(max_num)/total_pos_pro;
+rand_thre=single(max_num+50)/total_pos_pro;
 pos_pro_count=1;
 for i_o=1:length(gal_label)
     for i_p=1:length(pro_label)
@@ -44,7 +44,7 @@ for i_o=1:length(gal_label)
                 posPair(pos_pro_count).pro_name=pro_name{i_p};
                 posPair(pos_pro_count).label=1;
                 if pos_pro_count>= max_num
-                    break; % we can acclerate by set a stop flag
+                    break; % user can acclerate by set a stop flag
                 end
                 pos_pro_count=pos_pro_count+1;
             end
